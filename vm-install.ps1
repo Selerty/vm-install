@@ -1,11 +1,3 @@
-function Get-EnvironmentVariableSafe($name) {
-    $value = [System.Environment]::GetEnvironmentVariable($name, "User")
-    if ([string]::IsNullOrEmpty($value)) {
-        throw "Не найдена переменная среды: $name"
-    }
-    return $value
-}
-
 $vmSwitch = Get-EnvironmentVariableSafe "SELERTY_VM_COMMUTATOR_NAME"
 $isoPath = Get-EnvironmentVariableSafe "SELERTY_VM_ISO_PATH"
 $driveLetter = Get-EnvironmentVariableSafe "SELERTY_VM_ISO_DRIVE"
