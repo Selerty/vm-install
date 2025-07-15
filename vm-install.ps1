@@ -6,12 +6,6 @@ function Get-EnvironmentVariableSafe($name) {
     return $value
 }
 
-foreach ($var in $requiredVars) {
-    if (-not (Test-Path env:$var)) {
-        throw "Не определена переменная: $var"
-    }
-}
-
 $vmSwitch = Get-EnvironmentVariableSafe "SELERTY_VM_COMMUTATOR_NAME"
 $isoPath = Get-EnvironmentVariableSafe "SELERTY_VM_ISO_PATH"
 $driveLetter = Get-EnvironmentVariableSafe "SELERTY_VM_ISO_DRIVE"
