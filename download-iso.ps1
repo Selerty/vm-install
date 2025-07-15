@@ -32,9 +32,47 @@ function Show-DriveMenu {
     return $drives[$choice-1].Root
 }
 
-function Format-TimeSpan {
-    param([TimeSpan]$ts)
-    return "{0:D2}:{1:D2}:{2:D2}" -f $ts.Hours, $ts.Minutes, $ts.Seconds
+function Download-File {
+    param(
+        [string]$Url,
+        [string]$OutputPath
+    )
+    
+    try {
+        $request = [System.Net.HttpWebRequest]::Create($Url)
+        $response = $request.GetResponse()
+        $responseStream = $response.GetResponseStream()
+        $fileStream = [System.IO.File]::Create($OutputPath)
+        
+        $buffer = New-Object byte[] 1MB
+        $totalBytes = $response.ContentLength
+        $bytesRead = 0
+        $lastPercent = -1
+        
+        while (($read = $responseStream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            $fileStream.Write($buffer, 0, $read)
+            $bytesRead += $read
+            
+            $percent = [int](($bytesRead / $totalBytes) * 100)
+            if ($percent -ne $lastPercent -and ($percent % 1 -eq 0 -or $bytesRead -eq $totalBytes)) {
+                Write-Progress -Activity "Скачивание $fileName" `
+                              -Status "$percent% завершено ($([math]::Round($bytesRead/1MB,1)) MB из $([math]::Round($totalBytes/1MB,1)) MB)" `
+                              -PercentComplete $percent
+                $lastPercent = $percent
+            }
+        }
+        
+        return $true
+    }
+    catch {
+        Write-Error "Ошибка загрузки: $_"
+        return $false
+    }
+    finally {
+        if ($fileStream) { $fileStream.Close() }
+        if ($responseStream) { $responseStream.Close() }
+        if ($response) { $response.Close() }
+    }
 }
 
 try {
@@ -49,45 +87,21 @@ try {
     $outputPath = Join-Path -Path $downloadFolder -ChildPath $fileName
 
     Write-Host "`nНачинаю загрузку $fileName..." -ForegroundColor Cyan
-    Write-Host "Сохраняю в: $outputPath`n"
-
-    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    $lastUpdate = [DateTime]::Now
-
-    function Update-Timer {
-        $currentTime = [DateTime]::Now
-        if (($currentTime - $lastUpdate).TotalSeconds -ge 1) {
-            Write-Host "Прошло времени: $(Format-TimeSpan $stopwatch.Elapsed)" -NoNewline
-            Write-Host "`r" -NoNewline
-            $lastUpdate = $currentTime
-        }
+    Write-Host "Сохраняю в: $outputPath"
+    
+    $success = Download-File -Url $url -OutputPath $outputPath
+    
+    if ($success) {
+        Write-Host "`nЗагрузка завершена успешно!" -ForegroundColor Green
+        Write-Host "Файл сохранен: $outputPath" -ForegroundColor Cyan
+        
+        # Открываем папку с файлом
+        explorer $downloadFolder
     }
-
-    $job = Start-Job -ScriptBlock {
-        param($url, $outputPath)
-        $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicParsing
-    } -ArgumentList $url, $outputPath
-
-    while ($job.State -eq 'Running') {
-        Update-Timer
-        Start-Sleep -Milliseconds 200
+    else {
+        Write-Host "Загрузка не удалась." -ForegroundColor Red
+        if (Test-Path $outputPath) { Remove-Item $outputPath -Force }
     }
-
-    $result = Receive-Job -Job $job
-    Remove-Job -Job $job
-
-    $stopwatch.Stop()
-    Write-Host "`nЗагрузка завершена!" -ForegroundColor Green
-    Write-Host "Файл сохранен: $outputPath" -ForegroundColor Cyan
-    Write-Host "Общее время загрузки: $(Format-TimeSpan $stopwatch.Elapsed)"
-
-    if (Test-Path $outputPath) {
-        $fileSize = (Get-Item $outputPath).Length / 1MB
-        Write-Host "Размер файла: $([math]::Round($fileSize, 2)) MB"
-    }
-
-    explorer $downloadFolder
 }
 catch {
     Write-Error "Ошибка: $_"
