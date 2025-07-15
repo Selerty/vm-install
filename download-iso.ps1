@@ -78,7 +78,7 @@ function Download-File {
 try {
     $selectedDrive = Show-DriveMenu
     
-    $downloadFolder = Join-Path -Path $selectedDrive -ChildPath "vm-iso"
+    $downloadFolder = Join-Path -Path $selectedDrive -ChildPath "selerty-vm-iso"
     if (-not (Test-Path $downloadFolder)) {
         New-Item -Path $downloadFolder -ItemType Directory | Out-Null
         Write-Host "Создана папка $downloadFolder" -ForegroundColor Green
