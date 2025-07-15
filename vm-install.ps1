@@ -20,7 +20,7 @@ while (Get-VM -Name "VM-$vmNumber" -ErrorAction SilentlyContinue) {
 }
 $vmName = "VM-$vmNumber"
 
-$vmPath = "${driveLetter}:\Hyper-V\VMs\$vmName"
+$vmPath = "${driveLetter}Hyper-V\VMs\$vmName"
 $vhdPath = "$vmPath\$vmName.vhdx"
 
 if (-not (Test-Path $vmPath)) {
