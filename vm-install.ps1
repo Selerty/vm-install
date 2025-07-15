@@ -43,14 +43,14 @@ try {
     New-VHD -Path $vhdPath -SizeBytes $diskSize -Dynamic | Out-Null
 
     if (Test-Path $isoPath) {
-        Add-VMDvdDrive -VMName $vmName -Path $isoPath -ControllerNumber 0 | Out-Null
+        Add-VMDvdDrive -VMName $vmName -Path $isoPath | Out-Null
         Set-VMFirmware -VMName $vmName -FirstBootDevice (Get-VMDvdDrive -VMName $vmName)
         Write-Host "ISO подключен: $isoPath" -ForegroundColor Green
     } else {
         Write-Warning "ISO не найден: $isoPath"
     }
 
-    Add-VMHardDiskDrive -VMName $vmName -Path $vhdPath -ControllerNumber 1 | Out-Null
+    Add-VMHardDiskDrive -VMName $vmName -Path $vhdPath | Out-Null
 
     Set-VMProcessor -VMName $vmName -Count $cpu | Out-Null
     Write-Host "Успешно создана VM: $vmName" -ForegroundColor Green
