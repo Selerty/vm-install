@@ -89,7 +89,7 @@ try {
 
     $outputPath = Join-Path -Path $downloadFolder -ChildPath $fileName
     
-    $env:VM_ISO_PATH = $outputPath
+    $env:SELERTY_VM_ISO_PATH = $outputPath
     Write-Host "Путь к файлу сохранен в `$env:SELERTY_VM_ISO_PATH = $env:SELERTY_VM_ISO_PATH" -ForegroundColor DarkGray
 
     Write-Host "`nНачинаю загрузку $fileName..." -ForegroundColor Cyan
