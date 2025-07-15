@@ -41,10 +41,10 @@ try {
                  -StartupBytes $memory | Out-Null
 
     New-VHD -Path $vhdPath -SizeBytes $diskSize -Dynamic | Out-Null
-    Add-VMHardDiskDrive -VMName $vmName -Path $vhdPath | Out-Null
+    Add-VMHardDiskDrive -VMName $vmName -Path $vhdPath -ControllerNumber 1 | Out-Null
 
     if (Test-Path $isoPath) {
-        Add-VMDvdDrive -VMName $vmName -Path $isoPath | Out-Null
+        Add-VMDvdDrive -VMName $vmName -Path $isoPath -ControllerNumber 0 | Out-Null
         Set-VMFirmware -VMName $vmName -FirstBootDevice (Get-VMDvdDrive -VMName $vmName)
         Write-Host "ISO подключен: $isoPath" -ForegroundColor Green
     } else {
