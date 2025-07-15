@@ -1,4 +1,4 @@
-$url = "https://download.cs2farm.ru/WIN11-PRO-23H2-U9-X64-WPE.ISO"
+$url = "https://download.cs2farm.ru/v1.0.1.0.zip"
 $fileName = [System.IO.Path]::GetFileName($url)
 
 function Get-AvailableDrives {
