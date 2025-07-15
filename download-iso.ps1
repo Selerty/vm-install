@@ -76,7 +76,6 @@ try {
     Write-Host "`nПеременные сохранены на постоянной основе:" -ForegroundColor Green
     Write-Host "Диск: $selectedDrive"
     Write-Host "Путь: $outputPath"
-    Write-Host "Размер: $((Get-Item $outputPath).Length/1GB) GB"
 
     explorer $downloadFolder
 }
