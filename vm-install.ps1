@@ -1,8 +1,10 @@
-$requiredVars = @(
-    "SELERTY_VM_COMMUTATOR_NAME",
-    "SELERTY_VM_ISO_PATH",
-    "SELERTY_VM_ISO_DRIVE"
-)
+function Get-EnvironmentVariableSafe($name) {
+    $value = [System.Environment]::GetEnvironmentVariable($name, "User")
+    if ([string]::IsNullOrEmpty($value)) {
+        throw "Не найдена переменная среды: $name"
+    }
+    return $value
+}
 
 foreach ($var in $requiredVars) {
     if (-not (Test-Path env:$var)) {
@@ -10,9 +12,9 @@ foreach ($var in $requiredVars) {
     }
 }
 
-$vmSwitch = $env:SELERTY_VM_COMMUTATOR_NAME
-$isoPath = $env:SELERTY_VM_ISO_PATH
-$driveLetter = $env:SELERTY_VM_ISO_DRIVE
+$vmSwitch = Get-EnvironmentVariableSafe "SELERTY_VM_COMMUTATOR_NAME"
+$isoPath = Get-EnvironmentVariableSafe "SELERTY_VM_ISO_PATH"
+$driveLetter = Get-EnvironmentVariableSafe "SELERTY_VM_ISO_DRIVE"
 $memory = 8GB
 $cpu = 2
 $diskSize = 120GB
