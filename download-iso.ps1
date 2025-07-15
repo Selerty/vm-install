@@ -78,13 +78,19 @@ function Download-File {
 try {
     $selectedDrive = Show-DriveMenu
     
-    $downloadFolder = Join-Path -Path $selectedDrive -ChildPath "selerty-vm-iso"
+    $env:SELERTY_VM_ISO_DRIVE = $selectedDrive
+    Write-Host "Выбранный диск сохранен в `$env:SELERTY_VM_ISO_DRIVE = $env:SELERTY_VM_ISO_DRIVE" -ForegroundColor DarkGray
+    
+    $downloadFolder = Join-Path -Path $selectedDrive -ChildPath "selerty-vm-setup"
     if (-not (Test-Path $downloadFolder)) {
         New-Item -Path $downloadFolder -ItemType Directory | Out-Null
         Write-Host "Создана папка $downloadFolder" -ForegroundColor Green
     }
 
     $outputPath = Join-Path -Path $downloadFolder -ChildPath $fileName
+    
+    $env:VM_ISO_PATH = $outputPath
+    Write-Host "Путь к файлу сохранен в `$env:SELERTY_VM_ISO_PATH = $env:SELERTY_VM_ISO_PATH" -ForegroundColor DarkGray
 
     Write-Host "`nНачинаю загрузку $fileName..." -ForegroundColor Cyan
     Write-Host "Сохраняю в: $outputPath"
@@ -93,10 +99,19 @@ try {
     
     if ($success) {
         Write-Host "`nЗагрузка завершена успешно!" -ForegroundColor Green
+        
+        $fileInfo = Get-Item $outputPath
+        $env:SELERTY_VM_ISO_SIZE = "$([math]::Round($fileInfo.Length/1GB, 2)) GB"
+        Write-Host "Размер файла сохранен в `$env:SELERTY_VM_ISO_SIZE = $env:SELERTY_VM_ISO_SIZE" -ForegroundColor DarkGray
+        
         Write-Host "Файл сохранен: $outputPath" -ForegroundColor Cyan
         
-        # Открываем папку с файлом
         explorer $downloadFolder
+        
+        Write-Host "`nСохраненные переменные окружения:" -ForegroundColor Yellow
+        Write-Host "Выбранный диск: $env:SELERTY_VM_ISO_DRIVE"
+        Write-Host "Путь к файлу: $env:SELERTY_VM_ISO_PATH"
+        Write-Host "Размер файла: $env:SELERTY_VM_ISO_SIZE"
     }
     else {
         Write-Host "Загрузка не удалась." -ForegroundColor Red
